@@ -3,5 +3,5 @@
 ```
 cd ~
 wget https://raw.githubusercontent.com/integral0/check_requirements/main/reqs-check
-chmod a+x check_requirements
+chmod a+x reqs-check
 [[ -r /usr/local/bin/ && -w /usr/local/bin/ && -x /usr/local/bin/ ]] && mv reqs-check /usr/local/bin/ || { [[ ! -d ${HOME}/.local/bin ]] && mkdir -p ${HOME}/.local/bin; mv reqs-check ${HOME}/.local/bin/; }
