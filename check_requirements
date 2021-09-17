@@ -55,31 +55,31 @@ for GitRepo in $GitRepos; do
   cd ${WorkDir}
   rm -rf ${RepoTmpDir}
 
-  GitRepo="${COL_NORM}${GitRepo}${COL_NORM}"
+  GitRepoSave="${COL_NORM}${GitRepo}${COL_NORM}"
 
   printf '%s\n%s' "$GitLocalTag" "$GitRepoTag" | sort -C -V
   if [[ $? -eq 0 ]];then
     if [[ $GitLocalTag != $GitRepoTag ]];then
-      GitLocalTag="${COL_YELLOW}${GitLocalTag}${COL_NORM}"
-      GitRepoTag="${COL_GREEN}${GitRepoTag}${COL_NORM}"
+      GitLocalTagSave="${COL_YELLOW}${GitLocalTag}${COL_NORM}"
+      GitRepoTagSave="${COL_GREEN}${GitRepoTag}${COL_NORM}"
     else
-      GitLocalTag="${COL_NORM}${GitLocalTag}${COL_NORM}"
-      GitRepoTag="${COL_NORM}${GitRepoTag}${COL_NORM}"
+      GitLocalTagSave="${COL_NORM}${GitLocalTag}${COL_NORM}"
+      GitRepoTagSave="${COL_NORM}${GitRepoTag}${COL_NORM}"
     fi
   else
-    GitLocalTag="${COL_RED}${GitLocalTag}${COL_NORM}"
-    GitRepoTag="${COL_YELLOW}${GitRepoTag}${COL_NORM}"
+    GitLocalTagSave="${COL_RED}${GitLocalTag}${COL_NORM}"
+    GitRepoTagSave="${COL_YELLOW}${GitRepoTag}${COL_NORM}"
   fi
 
-  GitRepoWidth=${#GitRepo}; [[ $GitRepoWidth -gt $GitRepoWidthLast ]] && GitRepoWidthLast=$GitRepoWidth
-  GitLocalTagWidth=${#GitLocalTag}; [[ $GitLocalTagWidth -gt $GitLocalTagWidthLast ]] && GitLocalTagWidthLast=$GitLocalTagWidth
-  GitRepoTagWidth=${#GitRepoTag}; [[ $GitRepoTagWidth -gt $GitRepoTagWidthLast ]] && GitRepoTagWidthLast=$GitRepoTagWidth
+  GitRepoWidth=${#GitRepoSave}; [[ $GitRepoWidth -gt $GitRepoWidthLast ]] && GitRepoWidthLast=$GitRepoWidth
+  GitLocalTagWidth=${#GitLocalTagSave}; [[ $GitLocalTagWidth -gt $GitLocalTagWidthLast ]] && GitLocalTagWidthLast=$GitLocalTagWidth
+  GitRepoTagWidth=${#GitRepoTagSave}; [[ $GitRepoTagWidth -gt $GitRepoTagWidthLast ]] && GitRepoTagWidthLast=$GitRepoTagWidth
 
   if [[ -z $DIFF ]]; then
-    echo -e "${GitRepo}\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+    echo -e "${GitRepoSave}\t${GitLocalTagSave}\t${GitRepoTagSave}" >> ${RepoNameFile}
   else
     if [[ $GitLocalTag != $GitRepoTag ]];then
-      echo -e "${GitRepo}\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+      echo -e "${GitRepoSave}\t${GitLocalTagSave}\t${GitRepoTagSave}" >> ${RepoNameFile}
     fi
   fi
 done
@@ -87,4 +87,4 @@ done
 while read repo ltag rtag; do
   printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
 done  < ${RepoNameFile}
-rm -f $RepoNameFile
+#rm -f $RepoNameFile
