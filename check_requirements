@@ -2,11 +2,10 @@
 
 PATH="$HOME/.local/bin:$HOME/bin:/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin:/usr/local/bin"
 
-GREEN_SED='\\033[0;32m'
-YELLOW_SED='\\033[1;33m'
-RED_SED='\\033[0;31m'
-NORM_SED='\\033[0m' # No Color
-BOLD_SED='\\033[1m'
+COL_RED="\033[91m"
+COL_GREEN="\033[92m"
+COL_YELLOW="\033[93m"
+COL_NORM="\033[39m"
 
 head()
 {
@@ -41,7 +40,7 @@ done
 RepoNameFile=$(mktemp)
 WorkDir=$(pwd)
 
-echo -e "__BOLD_NORM__RepoName__COL_NORM__\t__BOLD_NORM__LocalTag__COL_NORM__\t__BOLD_NORM__RemoteTag__COL_NORM__" > $RepoNameFile
+echo -e "${COL_NORM}RepoName${COL_NORM}\t${COL_NORM}LocalTag${COL_NORM}\t${COL_NORM}RemoteTag${COL_NORM}" > $RepoNameFile
 
 GitRepos=$(find . -maxdepth 1 -mindepth 1 -name requirements.yml -print0 | xargs -0 grep "src" | awk '{print $3}' | sort | uniq)
 for GitRepo in $GitRepos; do
@@ -56,29 +55,37 @@ for GitRepo in $GitRepos; do
   cd ${WorkDir}
   rm -rf ${RepoTmpDir}
 
+  GitRepo="${COL_NORM}${GitRepo}${COL_NORM}"
+
   printf '%s\n%s' "$GitLocalTag" "$GitRepoTag" | sort -C -V
   if [[ $? -eq 0 ]];then
     if [[ $GitLocalTag != $GitRepoTag ]];then
-      GitLocalTag=__COL_YELLOW__${GitLocalTag}__COL_NORM__
-      GitRepoTag=__COL_GREEN__${GitRepoTag}__COL_NORM__
+      GitLocalTag="${COL_YELLOW}${GitLocalTag}${COL_NORM}"
+      GitRepoTag="${COL_GREEN}${GitRepoTag}${COL_NORM}"
     else
-      GitLocalTag=__COL_NORM__${GitLocalTag}__COL_NORM__
-      GitRepoTag=__COL_NORM__${GitRepoTag}__COL_NORM__
+      GitLocalTag="${COL_NORM}${GitLocalTag}${COL_NORM}"
+      GitRepoTag="${COL_NORM}${GitRepoTag}${COL_NORM}"
     fi
   else
-    GitLocalTag=__COL_RED__${GitLocalTag}__COL_NORM__
-    GitRepoTag=__COL_YELLOW__${GitRepoTag}__COL_NORM__
+    GitLocalTag="${COL_RED}${GitLocalTag}${COL_NORM}"
+    GitRepoTag="${COL_YELLOW}${GitRepoTag}${COL_NORM}"
   fi
+
+  GitRepoWidth=${#GitRepo}; [[ $GitRepoWidth -gt $GitRepoWidthLast ]] && GitRepoWidthLast=$GitRepoWidth
+  GitLocalTagWidth=${#GitLocalTag}; [[ $GitLocalTagWidth -gt $GitLocalTagWidthLast ]] && GitLocalTagWidthLast=$GitLocalTagWidth
+  GitRepoTagWidth=${#GitRepoTag}; [[ $GitRepoTagWidth -gt $GitRepoTagWidthLast ]] && GitRepoTagWidthLast=$GitRepoTagWidth
 
   if [[ -z $DIFF ]]; then
-    echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+    echo -e "${GitRepo}\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
   else
     if [[ $GitLocalTag != $GitRepoTag ]];then
-      echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+      echo -e "${GitRepo}\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
     fi
   fi
+  echo "$GitRepoWidthLast : $GitLocalTagWidthLast : $GitRepoTagWidthLast"
 done
 
-DATA=$(column -t -s$'\t'  $RepoNameFile)
-echo -e "$(sed -e "s/__COL_RED__/${RED_SED}/g" -e "s/__COL_GREEN__/${GREEN_SED}/g" -e "s/__COL_NORM__/${NORM_SED}/g" -e "s/__COL_YELLOW__/${YELLOW_SED}/g" -e "s/__BOLD_NORM__/${BOLD_SED}/g" <<< "$DATA")"
+while read repo ltag rtag; do
+  printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
+done  < ${RepoNameFile}
 rm -f $RepoNameFile
