@@ -16,7 +16,7 @@ head()
 file_not_found()
 {
     head
-    echo "File requirements.yml not found"
+    echo "File(s) requirements.yml not found"
     exit 1
 }
 
@@ -50,6 +50,7 @@ WorkDir=$(pwd)
 echo -e "${COL_NORM}RepoName${COL_NORM}\t${COL_NORM}LocalTag${COL_NORM}\t${COL_NORM}RemoteTag${COL_NORM}" > $RepoNameFile
 
 PathFilesRequirements=$(find . -maxdepth 2 -mindepth 1 -name requirements.yml -print)
+[[ -z $PathFilesRequirements ]] && file_not_found
 for PathFileRequirements in $PathFilesRequirements; do
   
   cd ${WorkDir}/$(dirname $PathFileRequirements)
