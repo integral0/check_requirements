@@ -9,8 +9,15 @@ COL_NORM="\033[39m"
 
 head()
 {
-    echo "Check file requirements.yml"
+    echo "Check tags in file requirements.yml"
     echo
+}
+
+file_not_found()
+{
+    head
+    echo "File requirements.yml not found"
+    exit 1
 }
 
 showhelp()
@@ -43,6 +50,7 @@ WorkDir=$(pwd)
 echo -e "${COL_NORM}RepoName${COL_NORM}\t${COL_NORM}LocalTag${COL_NORM}\t${COL_NORM}RemoteTag${COL_NORM}" > $RepoNameFile
 
 GitRepos=$(find . -maxdepth 1 -mindepth 1 -name requirements.yml -print0 | xargs -0 grep "src" | awk '{print $3}' | sort | uniq)
+[[ -z $GitRepos ]] && file_not_found
 for GitRepo in $GitRepos; do
   # LOCAL-TAG
   GitLocalTag=$(grep "$GitRepo" requirements.yml -A 4 | grep "version:" | awk '{print $2}')
@@ -87,4 +95,4 @@ done
 while read repo ltag rtag; do
   printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
 done  < ${RepoNameFile}
-#rm -f $RepoNameFile
+rm -f $RepoNameFile
