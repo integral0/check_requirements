@@ -40,9 +40,9 @@ WorkDir=$(pwd)
 
 GREEN_SED='\\033[0;32m'
 YELLOW_SED='\\033[1;33m'
-  RED_SED='\\033[0;31m'
- NORM_SED='\\033[0m' # No Color
- BOLD_SED='\\033[1m'
+RED_SED='\\033[0;31m'
+NORM_SED='\\033[0m' # No Color
+BOLD_SED='\\033[1m'
 
 echo -e "__BOLD_NORM__RepoName__COL_NORM__\t__BOLD_NORM__LocalTag__COL_NORM__\t__BOLD_NORM__RemoteTag__COL_NORM__" > $RepoNameFile
 
@@ -62,11 +62,11 @@ for GitRepo in $GitRepos; do
   printf '%s\n%s' "$GitLocalTag" "$GitRepoTag" | sort -C -V
   if [[ $? -eq 0 ]];then
     if [[ $GitLocalTag != $GitRepoTag ]];then
-        GitLocalTag=__COL_YELLOW__${GitLocalTag}__COL_NORM__
-        GitRepoTag=__COL_GREEN__${GitRepoTag}__COL_NORM__
+      GitLocalTag=__COL_YELLOW__${GitLocalTag}__COL_NORM__
+      GitRepoTag=__COL_GREEN__${GitRepoTag}__COL_NORM__
     else
-	GitLocalTag=__COL_NORM__${GitLocalTag}__COL_NORM__
-	GitRepoTag=__COL_NORM__${GitRepoTag}__COL_NORM__
+      GitLocalTag=__COL_NORM__${GitLocalTag}__COL_NORM__
+      GitRepoTag=__COL_NORM__${GitRepoTag}__COL_NORM__
     fi
   else
     GitLocalTag=__COL_RED__${GitLocalTag}__COL_NORM__
@@ -74,14 +74,14 @@ for GitRepo in $GitRepos; do
   fi
 
   if [[ -z $DIFF ]]; then
-	echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+    echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
   else
     if [[ $GitLocalTag != $GitRepoTag ]];then
-	echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
+      echo -e "__COL_NORM__${GitRepo}__COL_NORM__\t${GitLocalTag}\t${GitRepoTag}" >> ${RepoNameFile}
     fi
   fi
 done
 
 DATA=$(column -t -s$'\t'  $RepoNameFile)
 echo -e "$(sed -e "s/__COL_RED__/${RED_SED}/g" -e "s/__COL_GREEN__/${GREEN_SED}/g" -e "s/__COL_NORM__/${NORM_SED}/g" -e "s/__COL_YELLOW__/${YELLOW_SED}/g" -e "s/__BOLD_NORM__/${BOLD_SED}/g" <<< "$DATA")"
-#rm -f $RepoNameFile
+rm -f $RepoNameFile
