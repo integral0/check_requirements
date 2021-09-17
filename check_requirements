@@ -2,12 +2,17 @@
 
 PATH="$HOME/.local/bin:$HOME/bin:/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin:/usr/local/bin"
 
+GREEN_SED='\\033[0;32m'
+YELLOW_SED='\\033[1;33m'
+RED_SED='\\033[0;31m'
+NORM_SED='\\033[0m' # No Color
+BOLD_SED='\\033[1m'
+
 head()
 {
     echo "Check file requirements.yml"
     echo
 }
-
 
 showhelp()
 {
@@ -33,16 +38,8 @@ while [ "$1" ]; do
     shift
 done
 
-
-
 RepoNameFile=$(mktemp)
 WorkDir=$(pwd)
-
-GREEN_SED='\\033[0;32m'
-YELLOW_SED='\\033[1;33m'
-RED_SED='\\033[0;31m'
-NORM_SED='\\033[0m' # No Color
-BOLD_SED='\\033[1m'
 
 echo -e "__BOLD_NORM__RepoName__COL_NORM__\t__BOLD_NORM__LocalTag__COL_NORM__\t__BOLD_NORM__RemoteTag__COL_NORM__" > $RepoNameFile
 
