@@ -58,17 +58,27 @@ for PathFileRequirements in $PathFilesRequirements; do
   GitRepos=$(find . -maxdepth 1 -mindepth 1 -name requirements.yml -print0 | xargs -0 grep "^- src" | awk '{print $3}' )
   [[ -z $GitRepos ]] && file_not_found
   for GitRepo in $GitRepos; do
+    GitRepoMd5=$(echo $GitRepo| md5sum | awk '{print $1}')
     # LOCAL-TAG
     cd ${WorkDir}/$(dirname $PathFileRequirements)
     GitLocalTag=$(grep "$GitRepo" requirements.yml -A 4 | grep "version:" | awk '{print $2}')
    
     # REMOTE-TAG
-    RepoTmpDir=$(mktemp -d --dry-run)
-    git clone $GitRepo $RepoTmpDir -q
+    RepoTmpDir="/tmp/req-check/${GitRepoMd5}"
+
+    if [ ! -d $RepoTmpDir ];then
+	git clone $GitRepo $RepoTmpDir -q
+    else
+      if [ ! -f "/tmp/req-check/${GitRepoMd5}.flag" ];then
+	cd ${RepoTmpDir}
+	git pull -q
+	touch "/tmp/req-check/${GitRepoMd5}.flag"
+      fi
+    fi
+
     cd ${RepoTmpDir}
     GitRepoTag=$(git tag --sort "v:refname"  --merged | tail -1)
     cd ${WorkDir}
-    rm -rf ${RepoTmpDir}
 
     GitRepoSave="${COL_NORM}${GitRepo}${COL_NORM}"
 
@@ -105,4 +115,4 @@ done
 while read repo ltag rtag; do
   printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
 done  < ${RepoNameFile}
-rm -f $RepoNameFile
+rm -f $RepoNameFilev /tmp/req-check/*.flag
