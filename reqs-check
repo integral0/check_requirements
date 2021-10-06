@@ -25,8 +25,9 @@ showhelp()
     head
     echo "Usage: $(basename $0) [OPTIONS]"
     echo 'OPTIONS:'
-    echo '-h | --help:      Show this help screen'
-    echo '-d | --diff-only: Show only different tags'
+    echo '-h | --help:        Show this help screen'
+    echo '-d | --diff-only:   Show only different tags'
+    echo '   | --clear-cache: Clear cache repo before check'
 }
 
 while [ "$1" ]; do
@@ -37,6 +38,9 @@ while [ "$1" ]; do
             ;;
         '--diff-only' | '-d' )
             DIFF=1
+            ;;
+        '--clear-cache' )
+	    CLEAR_CACHE=1
             ;;
         * )
             ;;
@@ -51,6 +55,7 @@ echo -e "${COL_NORM}RepoName${COL_NORM}\t${COL_NORM}LocalTag${COL_NORM}\t${COL_N
 
 PathFilesRequirements=$(find . -maxdepth 2 -mindepth 1 -name requirements.yml -print)
 [[ -z $PathFilesRequirements ]] && file_not_found
+[[ -n "$CLEAR_CACHE" ]] && rm -rf ${HOME}/.cache/req-check
 for PathFileRequirements in $PathFilesRequirements; do
   
   cd ${WorkDir}/$(dirname $PathFileRequirements)
@@ -64,15 +69,15 @@ for PathFileRequirements in $PathFilesRequirements; do
     GitLocalTag=$(grep "$GitRepo" requirements.yml -A 4 | grep "version:" | awk '{print $2}')
    
     # REMOTE-TAG
-    RepoTmpDir="/tmp/req-check/${GitRepoMd5}"
+    RepoTmpDir="${HOME}/.cache/req-check/${GitRepoMd5}"
 
     if [ ! -d $RepoTmpDir ];then
 	git clone $GitRepo $RepoTmpDir -q
     else
-      if [ ! -f "/tmp/req-check/${GitRepoMd5}.flag" ];then
+      if [ ! -f "${HOME}/.cache/req-check/${GitRepoMd5}.flag" ];then
 	cd ${RepoTmpDir}
 	git pull -q
-	touch "/tmp/req-check/${GitRepoMd5}.flag"
+	touch "${HOME}/.cache/req-check/${GitRepoMd5}.flag"
       fi
     fi
 
@@ -115,4 +120,4 @@ done
 while read repo ltag rtag; do
   printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
 done  < ${RepoNameFile}
-rm -f $RepoNameFilev /tmp/req-check/*.flag
+rm -f $RepoNameFilev ${HOME}/.cache/req-check/*.flag
