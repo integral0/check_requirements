@@ -120,4 +120,4 @@ done
 while read repo ltag rtag; do
   printf "%-${GitRepoWidthLast}s %-${GitLocalTagWidthLast}s %-${GitRepoTagWidthLast}s\n" "${repo}" "${ltag}" "${rtag}"
 done  < ${RepoNameFile}
-rm -f $RepoNameFilev ${HOME}/.cache/req-check/*.flag
+rm -f $RepoNameFile ${HOME}/.cache/req-check/*.flag
