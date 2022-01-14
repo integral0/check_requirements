@@ -20,6 +20,4 @@ OPTIONS:
    | --clear-cache: Clear cache repo before check
 
 
-
-
 ```
